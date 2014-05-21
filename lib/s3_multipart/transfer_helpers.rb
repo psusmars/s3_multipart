@@ -63,15 +63,19 @@ module S3Multipart
     end
 
     def unique_name(options)
-      url = [UUID.generate, options[:object_name]].join("/")
-      controller = S3Multipart::Uploader.deserialize(options[:uploader])
-
-      if controller.mount_point && defined?(CarrierWaveDirect)
-        uploader = controller.model.to_s.classify.constantize.new.send(controller.mount_point)
-
-        if uploader.class.ancestors.include?(CarrierWaveDirect::Uploader)
-          url = uploader.key.sub(/#{Regexp.escape(CarrierWaveDirect::Uploader::FILENAME_WILDCARD)}\z/, options[:object_name])
+      if !S3Multipart.config.s3_object_url
+        url = [UUID.generate, options[:object_name]].join("/")
+        controller = S3Multipart::Uploader.deserialize(options[:uploader])
+  
+        if controller.mount_point && defined?(CarrierWaveDirect)
+          uploader = controller.model.to_s.classify.constantize.new.send(controller.mount_point)
+  
+          if uploader.class.ancestors.include?(CarrierWaveDirect::Uploader)
+            url = uploader.key.sub(/#{Regexp.escape(CarrierWaveDirect::Uploader::FILENAME_WILDCARD)}\z/, options[:object_name])
+          end
         end
+      else
+        url = [S3Multipart.config.s3_object_url.gsub('<uuid>', UUID.generate).gsub('<date>', DateTime.now.to_i), options[:object_name]].join("/")
       end
 
       URI.escape(url)
