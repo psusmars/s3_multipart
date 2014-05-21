@@ -23,8 +23,9 @@ module S3Multipart
     end
 
     def sign_batch(options)
+      part_numbers = options[:part_numbers].to_s.split("-")
       parts = options[:content_lengths].to_s.split('-').each_with_index.map do |len, i|
-        sign_part(options.merge!({content_length: len, part_number: i+1}))
+        sign_part(options.merge!({content_length: len, part_number: part_numbers[i] }))
       end
     end
 
@@ -32,7 +33,7 @@ module S3Multipart
       url = "/#{options[:object_name]}?partNumber=#{options[:part_number]}&uploadId=#{options[:upload_id]}"
       authorization, date = sign_request verb: 'PUT', url: URI.escape(url), content_length: options[:content_length]
 
-      { authorization: authorization, date: date }
+      { authorization: authorization, date: date, part_nummber: options[:part_number] }
     end
 
     def complete(options)
