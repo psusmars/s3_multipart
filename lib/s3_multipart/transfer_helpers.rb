@@ -75,7 +75,7 @@ module S3Multipart
           end
         end
       else
-        url = [Config.instance.s3_object_url.gsub('<uuid>', UUID.generate).gsub('<date>', DateTime.now.to_i), options[:object_name]].join("/")
+        url = [Config.instance.s3_object_url.gsub('<uuid>', UUID.generate.to_s).gsub('<date>', DateTime.now.to_i.to_s), options[:object_name]].join("/")
       end
 
       URI.escape(url)
