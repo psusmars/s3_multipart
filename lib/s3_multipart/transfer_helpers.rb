@@ -63,7 +63,7 @@ module S3Multipart
     end
 
     def unique_name(options)
-      if !S3Multipart.config.s3_object_url
+      if !Config.instance.s3_object_url
         url = [UUID.generate, options[:object_name]].join("/")
         controller = S3Multipart::Uploader.deserialize(options[:uploader])
   
@@ -75,7 +75,7 @@ module S3Multipart
           end
         end
       else
-        url = [S3Multipart.config.s3_object_url.gsub('<uuid>', UUID.generate).gsub('<date>', DateTime.now.to_i), options[:object_name]].join("/")
+        url = [Config.instance.s3_object_url.gsub('<uuid>', UUID.generate).gsub('<date>', DateTime.now.to_i), options[:object_name]].join("/")
       end
 
       URI.escape(url)
