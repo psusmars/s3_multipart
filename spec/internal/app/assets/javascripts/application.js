@@ -43,30 +43,30 @@ $(function() {
 
         // Hide the upload button + list, and insert the progress bar
         $(".upload-wrapper, .upload-list").hide();
-        $(".upload-list").after('<div class="progress-bar-'+key+'"></div>')
+        $(".upload-list").after('<div class="progress-bar-'+key+'"></div>');
         $(".progress-bar-"+key).progressbar({ max: 100 })
           .after('<div class="progress-bar-info progress-bar-info-'+key+'"><span class="name">'+upload.name+'</span><span class="speed"></span></div>');
         
-        console.log("File "+key+" has started uploading")
+        console.log("File "+key+" has started uploading");
       },
       onComplete: function(upload) {
         $('.progress-bar-'+upload.key).progressbar({ value: 100 });
         $('.progress-bar-info-'+upload.key)
           .find(".speed").html("100% ("+(upload.size/1000000).toFixed(1)+" MB of "+(upload.size/1000000).toFixed(1)+" MB)");
 
-        console.log("File "+upload.key+" successfully uploaded")
+        console.log("File "+upload.key+" successfully uploaded");
       },
       onPause: function(key) {
-        console.log("File "+key+" has been paused")
+        console.log("File "+key+" has been paused");
       },
       onResume: function(key) {
-        console.log("File "+key+" has been resumed")
+        console.log("File "+key+" has been resumed");
       },
       onCancel: function(key) {
-        console.log("File upload "+key+" was canceled")
+        console.log("File upload "+key+" was canceled");
       },
       onError: function() {
-        console.log("There was an error")
+        console.log("There was an error");
       },
       onProgress: function(key, size, done, percent, speed) {
         $('.progress-bar-'+key).progressbar({ value: percent });
@@ -110,7 +110,7 @@ $(function() {
         $("#uploader, .upload-button").hide();
         $(".submit-button").show();
 
-        upload_list = $(".upload-list")
+        upload_list = $(".upload-list");
         upload_list.show();
 
         _.each($("#uploader").get(0).files, function(val, key, list) {
@@ -121,7 +121,7 @@ $(function() {
           if (upload_list.find("li").length === 2 && upload_list.find("li").data("num") === undefined) {
             clone = upload_list.find("li:first");         
           } else {
-            clone = upload_list.find("li:first").clone()          
+            clone = upload_list.find("li:first").clone();          
           }
 
           clone.find(".name").text(val.name);
@@ -130,7 +130,7 @@ $(function() {
           clone.insertBefore(".upload-list ul .select-another-video").attr("data-num", key);
         });
 
-        num = file_list.length
+        num = file_list.length;
         if (num > 1) {
           $(".upload-list .total").text(num+" files"); 
         }
@@ -163,7 +163,7 @@ $(function() {
         });
       }
 
-    }
+    };
 
     $(".upload-wrapper")
       .mouseover(cbs.addActiveClass)
