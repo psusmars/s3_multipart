@@ -481,7 +481,13 @@ UploadPart.prototype.activate = function() {
     this.xhr.setRequestHeader('x-amz-date', this.date);
     this.xhr.setRequestHeader('Authorization', this.auth);
 
+try
+{
     this.xhr.send(this.blob);
+  }catch(_error){
+    console.log(_error);
+    this.xhr.send(this.blob);
+  }
     this.status = "active";
 
   }
