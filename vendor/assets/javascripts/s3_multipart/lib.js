@@ -374,13 +374,13 @@ function Upload(file, o, key) {
     // This needs to be optimized for various browsers types/versions
     if (this.size > 1000000000) { // size greater than 1gb
       num_segs = 100;
-      pipes = 10;
+      pipes = 2;
     } else if (this.size > 500000000) { // greater than 500mb
       num_segs = 50;
-      pipes = 5;
+      pipes = 2;
     } else if (this.size > 100000000) { // greater than 100 mb
       num_segs = 20;
-      pipes = 5;
+      pipes = 2;
     } else if (this.size > 50000000) { // greater than 50 mb
       num_segs = 5;
       pipes = 2;
