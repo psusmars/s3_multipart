@@ -373,10 +373,10 @@ function Upload(file, o, key) {
     // Break the file into an appropriate amount of chunks
     // This needs to be optimized for various browsers types/versions
     if (this.size > 1000000000) { // size greater than 1gb
-      num_segs = 100;
+      num_segs = 45;
       pipes = 2;
     } else if (this.size > 500000000) { // greater than 500mb
-      num_segs = 50;
+      num_segs = 40;
       pipes = 2;
     } else if (this.size > 100000000) { // greater than 100 mb
       num_segs = 20;
@@ -477,7 +477,7 @@ UploadPart.prototype.activate = function() {
     });
   }else{
 
-    this.xhr.open('PUT', 'http://s3-us-west-2.amazonaws.com/'+this.upload.bucket+'/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
+    this.xhr.open('PUT', 'https://'+this.upload.bucket+'.amazonaws.com/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
     this.xhr.setRequestHeader('x-amz-date', this.date);
     this.xhr.setRequestHeader('Authorization', this.auth);
 
