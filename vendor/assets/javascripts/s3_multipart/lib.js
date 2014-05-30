@@ -78,12 +78,11 @@ function S3MP(options) {
       // activate one of the remaining parts
       if (parts.length) {
         i = _.findIndex(parts, function(el, index, collection) {
-          if (el.status !== "active"  && el.status !== "going_to_active") {
+          if (el.status !== "active") {
             return true;
           }
         });
         if (i !== -1){ 
-          parts[i].status = "going_to_active";
           parts[i].activate();
         }
       }
@@ -131,14 +130,8 @@ function S3MP(options) {
           size = upload.size;
           done = upload.uploaded;
 
-
-          _.each(upload.inprogress,function(val, index) {
-            part_available = _.find(upload.parts, function(part){
-              return part.num == index;
-            });
-
-            if(part_available)
-              done += val;
+          _.each(upload.inprogress,function(val) {
+            done += val;
           });
 
           percent = done/size * 100;
