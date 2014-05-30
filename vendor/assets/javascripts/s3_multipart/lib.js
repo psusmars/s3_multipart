@@ -78,11 +78,12 @@ function S3MP(options) {
       // activate one of the remaining parts
       if (parts.length) {
         i = _.findIndex(parts, function(el, index, collection) {
-          if (el.status !== "active") {
+          if (el.status !== "active"  && el.status !== "going_to_active") {
             return true;
           }
         });
         if (i !== -1){ 
+          parts[i].status = "going_to_active";
           parts[i].activate();
         }
       }
@@ -130,8 +131,14 @@ function S3MP(options) {
           size = upload.size;
           done = upload.uploaded;
 
-          _.each(upload.inprogress,function(val) {
-            done += val;
+
+          _.each(upload.inprogress,function(val, index) {
+            part_available = _.find(upload.parts, function(part){
+              return part.num == index;
+            });
+
+            if(part_available)
+              done += val;
           });
 
           percent = done/size * 100;
@@ -366,11 +373,11 @@ function Upload(file, o, key) {
     // Break the file into an appropriate amount of chunks
     // This needs to be optimized for various browsers types/versions
     if (this.size > 1000000000) { // size greater than 1gb
-      num_segs = 45;
-      pipes = 2;
+      num_segs = 200;
+      pipes = 5;
     } else if (this.size > 500000000) { // greater than 500mb
-      num_segs = 40;
-      pipes = 2;
+      num_segs = 50;
+      pipes = 5;
     } else if (this.size > 100000000) { // greater than 100 mb
       num_segs = 20;
       pipes = 2;
