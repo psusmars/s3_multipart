@@ -54,7 +54,6 @@ function S3MP(options) {
 
     // called when an upload is paused or the network connection cuts out
     onError: function(uploadObj, part) {
-      part.status = "cancel";
       S3MP.onError(uploadObj, part);
     },
 
@@ -188,20 +187,15 @@ S3MP.prototype.signPartRequests = function(id, object_name, upload_id, parts, cb
   content_lengths = _.reduce(_.rest(parts), function(memo, part) {
     return memo + "-" + part.size;
   }, parts[0].size);
-  
-  part_numbers = _.reduce(_.rest(parts), function(memo, part) {
-    return memo + "-" + part.num;
-  }, parts[0].num);
-  
+
   url = "/s3_multipart/uploads/"+id;
   body = JSON.stringify({ object_name     : object_name,
                           upload_id       : upload_id,
-                          content_lengths : content_lengths,
-                          part_numbers     : part_numbers
+                          content_lengths : content_lengths
                         });
 
   xhr = this.createXhrRequest('PUT', url);
-  this.deliverRequest(xhr, body, cb, parts);
+  this.deliverRequest(xhr, body, cb);
 };
 
 S3MP.prototype.completeMultipart = function(uploadObj, cb) {
@@ -220,7 +214,7 @@ S3MP.prototype.completeMultipart = function(uploadObj, cb) {
 
 // Specify callbacks, request body, and settings for requests that contact
 // the site server, and send the request.
-S3MP.prototype.deliverRequest = function(xhr, body, cb, part) {
+S3MP.prototype.deliverRequest = function(xhr, body, cb) {
   var self = this;
   
   xhr.onload = function() {
@@ -231,19 +225,18 @@ S3MP.prototype.deliverRequest = function(xhr, body, cb, part) {
         message: response.error
       });  
     }
-    cb(response, part);
+    cb(response);
   };
 
   xhr.onerror = function() {
-    console.log("onerror invoke for xhr request under part " + part[0].num + " re activating it.");
-    part[0].activate();
+    // To-do: Handle communication errors
   };
 
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
 
   xhr.send(body);
-};
+}
 
 S3MP.prototype.createXhrRequest = function() {
   var xhrRequest;
@@ -287,15 +280,15 @@ S3MP.prototype.sliceBlob = function() {
   if (test_blob.slice) {
     return function(blob, start, end) {
       return blob.slice(start, end);
-    };
+    }
   } else if (test_blob.mozSlice) {
     return function(blob, start, end) {
       return blob.mozSlice(start, end);
-    };
+    }
   } else if (test_blob.webkitSlice) {
     return function(blob, start, end) {
       return blob.webkitSlice(start, end);
-    };
+    }
   } else {
     return "Unsupported";
   }
@@ -366,8 +359,8 @@ function Upload(file, o, key) {
     // Break the file into an appropriate amount of chunks
     // This needs to be optimized for various browsers types/versions
     if (this.size > 1000000000) { // size greater than 1gb
-      num_segs = 45;
-      pipes = 2;
+      num_segs = 100;
+      pipes = 10;
     } else if (this.size > 500000000) { // greater than 500mb
       num_segs = 40;
       pipes = 2;
@@ -419,7 +412,7 @@ function Upload(file, o, key) {
           });
         });
       }); 
-    }; 
+    } 
   };
   // Inherit the properties and prototype methods of the passed in S3MP instance object
   Upload.prototype = o;
@@ -452,32 +445,13 @@ function UploadPart(blob, key, upload) {
 
 };
 
-UploadPart.prototype.activate = function() {
-  current_time = new Date();
-  part_date = new Date(this.date);
+UploadPart.prototype.activate = function() { 
+  this.xhr.open('PUT', 'http://'+this.upload.bucket+'.s3.amazonaws.com/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
+  this.xhr.setRequestHeader('x-amz-date', this.date);
+  this.xhr.setRequestHeader('Authorization', this.auth);
 
-  if( (current_time - part_date)/1000/60 > 15 ){ //x-amz-date is greater then 15 Min so get a new date and auth token
-    console.log("Getting new signed path from server as x-amz-date expired for part number " + this.num);
-    this.upload.signPartRequests(this.upload.id, this.upload.object_name, this.upload.upload_id, [this], function(response, part) {
-
-      console.log("Got new signed path from server , going to start the chunk upload for part number " +  part[0].num);
-      part = parts[0];
-      part.date = response[0].date;
-      part.auth = response[0].authorization;
-      part.activate();
-
-
-    });
-  }else{
-
-    this.xhr.open('PUT', 'http://'+this.upload.bucket+'.s3.amazonaws.com/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
-    this.xhr.setRequestHeader('x-amz-date', this.date);
-    this.xhr.setRequestHeader('Authorization', this.auth);
-
-    this.xhr.send(this.blob);
-    this.status = "active";
-
-  }
+  this.xhr.send(this.blob);
+  this.status = "active";
 };
 
 UploadPart.prototype.pause = function() {
