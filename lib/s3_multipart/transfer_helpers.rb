@@ -103,7 +103,8 @@ module S3Multipart
           request_parts << canonicalized_headers
         end
 
-        request_parts << "/#{Config.instance.bucket_name}#{options[:url]}"
+        #request_parts << "/#{Config.instance.bucket_name}#{options[:url]}"
+        puts request_parts
         unsigned_request = request_parts.join("\n")
         signature = Base64.strict_encode64(OpenSSL::HMAC.digest('sha1', Config.instance.s3_secret_key, unsigned_request))
 
