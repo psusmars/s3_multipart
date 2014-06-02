@@ -477,7 +477,7 @@ UploadPart.prototype.activate = function() {
     });
   }else{
 
-    this.xhr.open('PUT', 'http://'+this.upload.bucket+'.s3.amazonaws.com/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
+    this.xhr.open('PUT', 'http://'+$("#s3_multipart_bucket_name").val()+'.s3.amazonaws.com/'+this.upload.object_name+'?partNumber='+this.num+'&uploadId='+this.upload.upload_id, true);
     this.xhr.setRequestHeader('x-amz-date', this.date);
     this.xhr.setRequestHeader('Authorization', this.auth);
 
