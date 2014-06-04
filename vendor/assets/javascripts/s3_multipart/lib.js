@@ -468,7 +468,7 @@ UploadPart.prototype.activate = function() {
     this.upload.signPartRequests(this.upload.id, this.upload.object_name, this.upload.upload_id, [this], function(response, part) {
 
       console.log("Got new signed path from server , going to start the chunk upload for part number " +  part[0].num);
-      part = parts[0];
+      part = part[0];
       part.date = response[0].date;
       part.auth = response[0].authorization;
       part.activate();
